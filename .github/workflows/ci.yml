@@ -7,6 +7,8 @@ on:
       - 'README.md'
       - '.github/**'
 
+  workflow_dispatch:
+
 jobs:
   setup:
     name: set up for test and build
@@ -19,6 +21,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+          cache: 'gradle'
 
       - run: |
           chmod +x gradlew
@@ -49,12 +52,14 @@ jobs:
 
       - run: chmod +x gradlew
 
-      - name: test and generate swagger ui
-        id: run-test
-        run: ./gradlew generateSwaggerUI --no-daemon
+      - run: ./gradlew test
+
+      - run: ./gradlew openapi3
+
+      - run: ./gradlew generateSwaggerUI
 
       - name: build bootjar
-        run: ./gradlew bootjar -x test --no-daemon
+        run: ./gradlew bootjar -x test
 
       - name: publish jar name
         id: publish
