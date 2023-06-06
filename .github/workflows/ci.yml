@@ -113,3 +113,14 @@ jobs:
       - run: ls
 
       - run: echo ${{ needs.build.outputs.jar-file }}
+
+  discord:
+    name: trigger discord webhook
+    needs: docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: tsickert/discord-webhook@v5.3.0
+        with:
+          webhook-url: https://discord.com/api/webhooks/1115690485542031440/g7LdJoytto_tm6TBa5gMNE7cHdcUcu6DAWIISy9S2VA5wMMBgiSe1U6DBGPYqAMZe59n
+          content: ci success!
