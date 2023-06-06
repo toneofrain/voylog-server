@@ -54,10 +54,6 @@ jobs:
 
       - run: ./gradlew test
 
-      - run: ./gradlew openapi3
-
-      - run: ./gradlew generateSwaggerUI
-
       - name: build bootjar
         run: ./gradlew bootjar -x test
 
