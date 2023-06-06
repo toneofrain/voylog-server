@@ -21,8 +21,14 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
-          cache: 'gradle'
-          
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
       - run: |
           chmod +x gradlew
           ./gradlew dependencies
@@ -32,8 +38,37 @@ jobs:
           name: files
           path: ./
 
+  test:
+    name: test
+    needs: setup
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: files
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: run test
+        id: run-test
+        run: |
+          chmod +x gradlew
+          ./gradlew test --no-daemon
+
+      - name: upload test report
+        if: failure() && steps.run-test.outcome == 'failure'
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: build/test-results/test/**.xml
+
+
   build:
-    name: test and build
+    name: build bootjar
     needs: setup
     runs-on: ubuntu-latest
     outputs:
@@ -48,14 +83,11 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
-          cache: 'gradle'
 
-      - run: chmod +x gradlew
-
-      - run: ./gradlew test
-
-      - name: build bootjar
-        run: ./gradlew bootjar -x test
+      - name: run bootjar
+        run: |
+          chmod +x gradlew
+          ./gradlew bootjar -x test --no-daemon
 
       - name: publish jar name
         id: publish
@@ -67,16 +99,9 @@ jobs:
           name: jar-file
           path: build/libs/*.jar
 
-      - name: upload test report
-        if: failure() && steps.run-test.outcome == 'failure'
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-report
-          path: build/test-results/test/**.xml
-
   docker:
     name: build docker image
-    needs: build
+    needs: [ test, build ]
     runs-on: ubuntu-latest
 
     steps:
