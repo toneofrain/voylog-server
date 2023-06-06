@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'README.md'
+      - '.github/**'
+      -
+jobs:
+  setup:
+    name: set up for test and build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: files
+          path: ./
+
+  build:
+    name: test and build
+    needs: setup
+    runs-on: ubuntu-latest
+    outputs:
+      jar-file: ${{ steps.publish.outputs }}
+
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: files
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+
+      - name: test and generate swagger ui
+        id: run-test
+        run: ./gradlew generateSwaggerUI --no-daemon
+
+      - name: build bootjar
+        run: ./gradlew bootjar -x test --no-daemon
+
+      - name: publish jar name
+        id: publish
+        run: find build/libs/*.jar -type f -execdir echo 'jar-file={}' >> $GITHUB_OUTPUT ';'
+
+      - name: upload jar
+        uses: actions/upload-artifact@v3
+        with:
+          name: jar-file
+          path: build/libs/*.jar
+
+      - name: upload test report
+        if: failure() && steps.run-test.outcome == 'failure'
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: build/test-results/test/**.xml
+
+  docker:
+    name: build docker image
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: down load jar file
+        uses: actions/download-artifact@v3
+        with:
+          name: jar-file
+
+      - run: ls
+
+      - run: echo ${{ needs.build.outputs.jar-file }}
