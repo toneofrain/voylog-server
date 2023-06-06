@@ -37,7 +37,7 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     outputs:
-      jar-file: ${{ steps.publish.outputs }}
+      jar-file: ${{ steps.publish.outputs.jar-file }}
 
     steps:
       - uses: actions/download-artifact@v3
