@@ -6,7 +6,11 @@
     "version" : "0.1.0"
   },
   "servers" : [ {
-    "url" : "https://localhost:8080"
+    "url" : "http://localhost:8080",
+    "description" : "local"
+  }, {
+    "url" : "https://voylog.saintho.dev",
+    "description" : "prod"
   } ],
   "tags" : [ ],
   "paths" : {

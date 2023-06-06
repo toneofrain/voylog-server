@@ -13,6 +13,10 @@ plugins {
     id 'org.hidetake.swagger.generator' version '2.18.2'
 }
 
+jar {
+    enabled = false
+}
+
 group = 'dev.saintho'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
@@ -60,12 +64,17 @@ tasks.withType(GenerateSwaggerUI) {
     }
 }
 
-bootJar{
-    dependsOn(':openapi3')
-}
-
 openapi3 {
-    server = 'https://localhost:8080'
+    servers = [
+            {
+                url = 'http://localhost:8080'
+                description = 'local'
+            },
+            {
+                url = 'https://voylog.saintho.dev'
+                description = 'prod'
+            }
+    ]
     title = 'voylog server'
     description = 'voylog api description'
     version = '0.1.0'
