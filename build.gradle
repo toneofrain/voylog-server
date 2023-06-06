@@ -82,3 +82,5 @@ openapi3 {
     format = 'json'
     outputDirectory = 'build/resources/main/static/docs'
 }
+
+// trick for github action push
