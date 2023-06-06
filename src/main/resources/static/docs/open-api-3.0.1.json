@@ -1,0 +1,48 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "voylog server",
+    "description" : "voylog api description",
+    "version" : "0.1.0"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080",
+    "description" : "local"
+  }, {
+    "url" : "https://voylog.saintho.dev",
+    "description" : "prod"
+  } ],
+  "tags" : [ ],
+  "paths" : {
+    "/api/v1/index" : {
+      "get" : {
+        "tags" : [ "api" ],
+        "operationId" : "index-docs",
+        "responses" : {
+          "200" : {
+            "description" : "200",
+            "content" : {
+              "text/plain;charset=UTF-8" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/api-v1-index486549215"
+                },
+                "examples" : {
+                  "index-docs" : {
+                    "value" : "Hello!"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "api-v1-index486549215" : {
+        "type" : "object"
+      }
+    }
+  }
+}
